@@ -16,11 +16,11 @@ router.register('follow', FollowViewSet, basename='follow')
 
 
 urlpatterns = [
-    path('', include(router.urls)),
-    path('token/',
+    path('v1/', include(router.urls)),
+    path('v1/token/',
          TokenObtainPairView.as_view(),
          name='token_obtain_pair'),
-    path('token/refresh/',
+    path('v1/token/refresh/',
          TokenRefreshView.as_view(),
          name='token_refresh'),
 ]

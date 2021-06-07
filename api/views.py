@@ -1,6 +1,7 @@
 from rest_framework import filters, mixins
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions, viewsets
+from django_filters.rest_framework import DjangoFilterBackend
 
 from .permissions import IsAuthorOrReadOnly
 
@@ -16,18 +17,11 @@ class PostViewSet(viewsets.ModelViewSet):
     serializer_class = PostSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,
                           IsAuthorOrReadOnly)
-    filter_backends = [filters.SearchFilter]
+    filter_backends = [DjangoFilterBackend]
     filterset_fields = ('group',)
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
-
-    def get_queryset(self):
-        group_id = self.request.query_params.get('group')
-        if group_id is None:
-            return Post.objects.all()
-        group = get_object_or_404(Group, id=group_id)
-        return Post.objects.filter(group=group.id)
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -45,16 +39,16 @@ class CommentViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user)
 
 
-class MixinsViewSet(mixins.CreateModelMixin,
-                    mixins.ListModelMixin,
-                    viewsets.GenericViewSet):
+class ListCreateMixin(mixins.CreateModelMixin,
+                      mixins.ListModelMixin,
+                      viewsets.GenericViewSet):
     """
-    Класс-заглушка для наследования
+    Миксин для списка и создания
     """
     pass
 
 
-class GroupViewSet(MixinsViewSet):
+class GroupViewSet(ListCreateMixin):
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,
@@ -66,7 +60,7 @@ class GroupViewSet(MixinsViewSet):
         serializer.save()
 
 
-class FollowViewSet(MixinsViewSet):
+class FollowViewSet(ListCreateMixin):
     serializer_class = FollowSerializer
     queryset = Follow.objects.all()
     filter_backends = [filters.SearchFilter]

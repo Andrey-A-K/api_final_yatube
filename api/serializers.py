@@ -2,7 +2,7 @@ from rest_framework import serializers
 from rest_framework.fields import CurrentUserDefault
 from rest_framework.validators import UniqueTogetherValidator
 
-from .models import Comment, Post, Group, Follow, User
+from .models import Comment, Follow, Group, Post, User
 
 
 class PostSerializer(serializers.ModelSerializer):
